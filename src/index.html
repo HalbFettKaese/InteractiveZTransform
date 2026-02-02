@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Interactive Z-Transform</title>
+        <script src="scripts/index.ts" type="module"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <link rel="stylesheet" href="./styles.css">
+        <link rel="icon" href="./assets/icon.png">
+    </head>
+    <body>
+        <div class="info-container">
+            <button id="info-button"><span class="material-icons">info</span></button>
+            <div id="info-text">
+                <h2>Controls</h2>
+                <table>
+                    <thead><tr style="text-align: left;">
+                        <th>Input</th>
+                        <th>Function</th>
+                    </tr></thead>
+                    <tbody>
+                    <tr><td><kbd>Shift</kbd> + <kbd>Click</kbd></td><td> Create new pole</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>Click</kbd></td><td> Create new zero</td></tr>
+                    <tr><td><kbd>Delete</kbd></td><td> Delete selected point</td></tr>
+                    <tr><td><kbd>J</kbd></td><td> Jump to selected point</td></tr>
+                    <tr><td><kbd>Enter</kbd></td><td> Cycle through selected points</td></tr>
+                    <tr><td><kbd>Shift</kbd> + <kbd>Enter</kbd></td><td> Cycle through selected points in reverse order</td></tr>
+                    <tr><td><kbd>D</kbd></td><td> Cycle through display functions</td></tr>
+                    <tr><td><kbd>I</kbd></td><td> Toggle Info</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="sidebar-container">
+            <details id="settings_window" class="sidebar-window" open>
+                <summary>
+                    <label>Settings</label>
+                </summary>
+                <div class="section"></div>
+                <label>Constant factor:</label>
+                <input id="scale_slider" type="range" value="0" min="-2" max="2" step="any"/><br>
+                <input id="scale_input" type="text" min="0" max="10" step="0.01" value="1"/><br>
+                <input id="scale_norm" type="checkbox"><label>Normalize factor</label><br>
+                <div class="section"></div>
+                <label>Default relations:</label><br>
+                <input type="checkbox" data-selection="allPass:relation"/> <label>All pass</label><br>
+                <input type="checkbox" data-selection="complement:relation"/> <label>Conjugate</label><br>
+            </details>
+            <details id="selected_point_window" class="sidebar-window" open hidden>
+                <summary>
+                    <label>Selected Point</label>
+                </summary>
+                <label>Real part: </label><input type="text" min="-2" max="2" value="0" data-selection="real:number"/>
+                <label>Imaginary part: </label><input type="text" min="-2" max="2" value="0" data-selection="imag:number"/>
+                <label>Radius: </label><input type="text" min="0" max="2" value="0" data-selection="radius:number"/>
+                <label>Angle: </label><input type="text" min="-3.141" max="3.141" value="0" data-selection="angle:number"/>
+                <div class="section"></div>
+                <label>Relations:</label><br>
+                <input type="checkbox" data-selection="allPass:relation"/> <label>All pass</label><br>
+                <input type="checkbox" data-selection="complement:relation"/> <label>Conjugate</label><br>
+                <div class="section"></div>
+                <button data-selection="delete:button">Delete</button>
+                <button data-selection="jump:button">Jump</button>
+            </details>
+        </div>
+        <canvas id="gl_canvas" width="640" height="480">
+        </canvas>
+    </body>
+</html>

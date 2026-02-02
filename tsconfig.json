@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "types": [
+            "vite/client"
+        ],
+        "lib": [
+            "DOM", "ES2024"
+        ],
+        "target": "es2020",
+        "module": "nodenext",
+        "moduleResolution": "nodenext"
+    }
+}
