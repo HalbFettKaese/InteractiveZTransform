@@ -2,9 +2,21 @@ import { vec2 } from "gl-matrix";
 import { Context } from "./context";
 import { RelationName } from "./point";
 
-type SelectionWindowElement = ["number", "real" | "imag" | "radius" | "angle"] | ["relation", RelationName] | ["button", "delete" | "jump"];
+type SelectionWindowElement = 
+    | ["number", "real" | "imag" | "radius" | "angle"]
+    | ["relation", RelationName]
+    | ["button", "delete" | "jump"];
 
 type ItemsValue<Items extends [any, any], Key extends Items[0], S extends Items = Items> = S extends [Key, any] ? S[1] : never
+
+function iterateElements(parent: HTMLElement, op: (el: HTMLInputElement, [type, name]: SelectionWindowElement) => void) {
+    parent.querySelectorAll("[data-selection]").forEach(
+        (el: HTMLInputElement) => op(
+            el,
+            el.getAttribute("data-selection").split(":").reverse() as SelectionWindowElement
+        )
+    );
+}
 
 export function updateSelectionWindow(ctx: Context) {
     const index = ctx.press.ind;
@@ -19,8 +31,7 @@ export function updateSelectionWindow(ctx: Context) {
         radius: vec2.length(point.pos),
         angle: (180 / Math.PI * Math.atan2(point.pos[1], point.pos[0]))
     };
-    ctx.selectionWindow.querySelectorAll("[data-selection]").forEach((input: HTMLInputElement) => {
-        const [type, name] = input.getAttribute("data-selection").split(":").reverse() as SelectionWindowElement;
+    iterateElements(ctx.selectionWindow, (input, [type, name]) => {
         if (type == "number") {
             if (document.activeElement !== input)
                 input.value = numberDisplays[name].toString();
@@ -90,8 +101,8 @@ export function initSelectionWindow(ctx: Context) {
         ctx.drawScene();
     }
     ctx.selectionWindow = document.getElementById("selected_point_window") as HTMLElement;
-    ctx.selectionWindow.querySelectorAll("[data-selection]").forEach((input: HTMLInputElement) => {
-        const [type, name] = input.getAttribute("data-selection").split(":").reverse() as SelectionWindowElement;
+
+    iterateElements(ctx.selectionWindow, (input, [type, name]) => {
         elements[name] = input;
         if (type == "number") {
             if (name == "real" || name == "imag") input.oninput = updateFromCartesian;
@@ -143,18 +154,20 @@ export class SettingsWindow {
             ctx.drawScene();
         }
         this.factorText.oninput(null);
-
-        document.querySelectorAll("#settings_window [data-selection]").forEach((input: HTMLInputElement) => {
-            const [type, name] = input.getAttribute("data-selection").split(":").reverse() as SelectionWindowElement;
-            if (type == "relation") {
-                input.onclick = () => {
+        
+        iterateElements(
+            document.getElementById("settings_window"),
+            (input, [type, name]) => {
+                if (type == "relation") {
+                    input.onclick = () => {
+                        this.defaultRelations[name] = input.checked;
+                        ctx.recoverIndex();
+                        ctx.drawScene();
+                    };
                     this.defaultRelations[name] = input.checked;
-                    ctx.recoverIndex();
-                    ctx.drawScene();
-                };
-                this.defaultRelations[name] = input.checked;
+                }
             }
-        });
+        );
     }
 
     update() {

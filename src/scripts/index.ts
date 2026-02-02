@@ -12,7 +12,6 @@ function main() {
     const canvas = document.getElementById("gl_canvas") as HTMLCanvasElement;
     const sidebar = document.getElementsByClassName("sidebar-container").item(0);
     const infoButton = document.getElementById("info-button") as HTMLButtonElement;
-    const infoText = document.getElementById("info-text") as HTMLDivElement;
     infoButton.onclick = () => {
         infoButton.toggleAttribute("data-toggle")
     };

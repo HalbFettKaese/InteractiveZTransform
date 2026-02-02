@@ -149,6 +149,7 @@ export class Context {
     }
 
     recoverIndex() {
+        if (this.press.ind == -1) return;
         const prevInd = this.press.ind;
         const point = this.virtualPoints[prevInd];
         this.updateVirtualPoints();
