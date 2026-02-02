@@ -98,19 +98,15 @@ function main() {
         if (ev.key == "Escape") {
             (document.activeElement as HTMLElement).blur();
         }
-        switch (ev.key) {
+        switch (ev.key.toLowerCase()) {
             case "d":
                 ctx.displayFunction = (ctx.displayFunction + 1) % 2; // 🐇🥚
                 break;
-            case "Delete":
+            case "delete":
                 if (sidebar.contains(document.activeElement)) return;
                 ctx.deleteSelectedPoint();
                 break;
-            case "j":
-                ctx.jumpToSelectedPoint();
-                break;
-            case "Enter":
-                if (sidebar.contains(document.activeElement)) return;
+            case "n":
                 if (ctx.virtualPoints.length == 0) return;
                 const sign = ev.shiftKey ? -1 : 1;
                 selectPoint(ctx, mod(ctx.press.ind + sign, ctx.virtualPoints.length));
