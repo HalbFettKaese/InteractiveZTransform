@@ -111,12 +111,7 @@ export class Context {
     jumpToSelectedPoint() {
         if (this.press.ind === -1) return;
         const point = this.virtualPoints[this.press.ind];
-        const mid = vec2.create();
-        vec2.add(mid, this.viewFrame.corner0, this.viewFrame.corner1);
-        vec2.scale(mid, mid, 0.5);
-        vec2.sub(mid, point.pos, mid);
-        vec2.add(this.viewFrame.corner0, this.viewFrame.corner0, mid);
-        vec2.add(this.viewFrame.corner1, this.viewFrame.corner1, mid);
+        vec2.copy(this.viewFrame.center, point.pos);
         this.drawScene();
     }
     
@@ -184,23 +179,41 @@ class Press {
 
 class ViewFrame {
     canvas: HTMLCanvasElement;
-    corner0: vec2;
-    corner1: vec2;
+    center: vec2;
+    aspect: vec2;
+    size: number;
 
-    constructor(canvas: HTMLCanvasElement, corner0?: vec2, corner1?: vec2) {
+    constructor(canvas: HTMLCanvasElement, center?: vec2, aspect?: vec2, size?: number) {
         this.canvas = canvas;
-        if (!corner0 || !corner1) {
-            var w = canvas.width
-            var h = canvas.height;
-            var m = Math.min(w, h) / 2 / 1.2;
-            w /= m;
-            h /= m;
-            this.corner0 = [-w/2, -h/2];
-            this.corner1 = [ w/2,  h/2];
+        if (aspect) {
+            this.aspect = aspect;
         } else {
-            this.corner0 = corner0;
-            this.corner1 = corner1;
+            this.calculateAspect();
         }
+        this.center = center ? center : [0, 0];
+        this.size = size ? size : 1;
+    }
+
+    calculateAspect() {
+        var w = this.canvas.width
+        var h = this.canvas.height;
+        var m = Math.min(w, h) / 2 / 1.2;
+        w /= m;
+        h /= m;
+        this.aspect = [ w/2,  h/2];
+    }
+
+    get corner0(): readonly [number, number] {
+        const result = [0, 0];
+        vec2.scale(result, this.aspect, this.size);
+        vec2.sub(result, this.center, result);
+        return result as [number, number];
+    }
+    get corner1(): readonly [number, number] {
+        const result = vec2.create();
+        vec2.scale(result, this.aspect, this.size);
+        vec2.add(result, this.center, result);
+        return result as [number, number];
     }
 
     fromCanvasCoords(point: vec2): vec2 {

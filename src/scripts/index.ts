@@ -38,8 +38,7 @@ function main() {
         const delta = ctx.viewFrame.fromCanvasDelta(canvasDelta);
         switch (ctx.press.element) {
             case -1:
-                vec2.sub(ctx.viewFrame.corner0, ctx.viewFrame.corner0, delta);
-                vec2.sub(ctx.viewFrame.corner1, ctx.viewFrame.corner1, delta);
+                vec2.sub(ctx.viewFrame.center, ctx.viewFrame.center, delta);
                 break;
             case 0:
                 const newPos = [0, 0];
@@ -81,14 +80,12 @@ function main() {
     };
 
     canvas.onwheel = (ev: WheelEvent) => {
-        const mousePos = ctx.viewFrame.fromCanvasCoords([ev.x, ev.y]);
         const zoom = Math.pow(2, 10 * ev.deltaY / canvas.height);
-        vec2.sub(ctx.viewFrame.corner0, ctx.viewFrame.corner0, mousePos);
-        vec2.sub(ctx.viewFrame.corner1, ctx.viewFrame.corner1, mousePos);
-        vec2.scale(ctx.viewFrame.corner0, ctx.viewFrame.corner0, zoom);
-        vec2.scale(ctx.viewFrame.corner1, ctx.viewFrame.corner1, zoom);
-        vec2.add(ctx.viewFrame.corner0, ctx.viewFrame.corner0, mousePos);
-        vec2.add(ctx.viewFrame.corner1, ctx.viewFrame.corner1, mousePos);
+        const mousePos = ctx.viewFrame.fromCanvasCoords([ev.x, ev.y]);
+        vec2.sub(ctx.viewFrame.center, ctx.viewFrame.center, mousePos);
+        vec2.scale(ctx.viewFrame.center, ctx.viewFrame.center, zoom);
+        vec2.add(ctx.viewFrame.center, ctx.viewFrame.center, mousePos);
+        ctx.viewFrame.size *= zoom;
         ctx.drawScene();
         ev.preventDefault();
     };
@@ -122,13 +119,9 @@ function main() {
     })
 
     window.onresize = () => {
-        const previousAspect = canvas.height / canvas.width;
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        const newAspect = canvas.height / canvas.width;
-        ctx.viewFrame.corner0[1] -= ctx.viewFrame.corner1[1];
-        ctx.viewFrame.corner0[1] *= newAspect / previousAspect;
-        ctx.viewFrame.corner0[1] += ctx.viewFrame.corner1[1];
+        ctx.viewFrame.calculateAspect();
         ctx.gl.viewport(0, 0, canvas.width, canvas.height);
         ctx.drawScene();
     };
