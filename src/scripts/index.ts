@@ -1,5 +1,4 @@
 import { vec2 } from "gl-matrix";
-import { drawScatter } from "./scatter";
 import { Context } from "./context";
 import { updateSelectionWindow } from "./html_elements";
 import { mod } from "./util";
@@ -101,6 +100,10 @@ function main() {
             case "delete":
                 if (sidebar.contains(document.activeElement)) return;
                 ctx.deleteSelectedPoint();
+                break;
+            case "t":
+                if (sidebar.contains(document.activeElement)) return;
+                ctx.toggleSelectedPoint();
                 break;
             case "n":
                 if (ctx.virtualPoints.length == 0) return;

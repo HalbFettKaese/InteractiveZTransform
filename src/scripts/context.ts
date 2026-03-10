@@ -97,17 +97,31 @@ export class Context {
         }
     }
 
-    deleteSelectedPoint() {
-        if (this.press.ind === -1) return;
+    getSelectedRootPoint() {
+        if (this.press.ind === -1) return -1;
         const point = this.virtualPoints[this.press.ind];
-        const index = "fromVirtual" in point ? point.index : this.press.ind;
+        return "fromVirtual" in point ? point.index : this.press.ind;
+    }
+
+    deleteSelectedPoint() {
+        const index = this.getSelectedRootPoint();
+        if (index === -1) return;
         this.points.splice(index, 1);
         this.press.ind = -1;
         this.selectionWindow.hidden = true;
         this.drawScene();
     }
 
-    
+    toggleSelectedPoint() {
+        const index = this.getSelectedRootPoint();
+        if (index === -1) return;
+        const point = this.points[index];
+        point.type =
+            point.type == "pole" ? "zero"
+          : point.type == "zero" ? "pole"
+          : point.type satisfies never;
+    }
+
     jumpToSelectedPoint() {
         if (this.press.ind === -1) return;
         const point = this.virtualPoints[this.press.ind];
