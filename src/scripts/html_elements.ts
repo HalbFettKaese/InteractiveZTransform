@@ -225,7 +225,7 @@ export class InfoMenu {
     }
     updateDisplayFunction(displayFunction: DisplayFunction) {
         const m = 10;
-        const thickness = 50;
+        const thickness = 25;
         const w = this.legendCanvas.width;
         const h = this.legendCanvas.height;
         const ctx = this.legendCanvasCtx;
