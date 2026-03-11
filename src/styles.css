@@ -36,6 +36,7 @@ html, body {
     margin: 10px;
     width: fit-content;
     height: fit-content;
+    pointer-events: none;
 }
 .sidebar-container {
     height: 100%;
@@ -45,6 +46,7 @@ html, body {
     left: 100%;
     transform: translateX(-100%);
     width: 200px;
+    pointer-events: none;
 }
 .sidebar-window {
     background-color: white;
@@ -55,6 +57,7 @@ html, body {
     border-color: #AAA;
     border-style: solid;
     border-width: 1px;
+    pointer-events: auto;
 }
 #scale_input {
     width: calc(100% - 8px);
@@ -86,6 +89,7 @@ th {
     border-color: #AAA;
     border-style: solid;
     border-width: 1px;
+    pointer-events: auto;
 }
 
 h2 {
@@ -119,6 +123,7 @@ button:active {
     height: 40px;
     padding: 0px;
     margin-right: 2px;
+    pointer-events: auto;
 }
 
 .buttons-panel {
