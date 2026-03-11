@@ -1,6 +1,6 @@
 import { vec2 } from "gl-matrix";
-import { Context } from "./context";
-import { updateSelectionWindow } from "./html_elements";
+import { Context, DisplayFunction } from "./context";
+import { InfoMenu, updateSelectionWindow } from "./html_elements";
 import { mod } from "./util";
 
 function overlap(p1: vec2, p2: vec2) {
@@ -10,11 +10,8 @@ function overlap(p1: vec2, p2: vec2) {
 function main() {
     const canvas = document.getElementById("gl_canvas") as HTMLCanvasElement;
     const sidebar = document.getElementsByClassName("sidebar-container").item(0);
-    const infoButton = document.getElementById("info-button") as HTMLButtonElement;
-    infoButton.onclick = () => {
-        infoButton.toggleAttribute("data-toggle")
-    };
-    const ctx = new Context(canvas);
+    const infoMenu = new InfoMenu();
+    const ctx = new Context(canvas, infoMenu);
     var didMove = false;
     canvas.onmousedown = ev => {
         didMove = false;
@@ -95,7 +92,7 @@ function main() {
         }
         switch (ev.key.toLowerCase()) {
             case "d":
-                ctx.displayFunction = (ctx.displayFunction + 1) % 2; // 🐇🥚
+                ctx.displayFunction = (ctx.displayFunction + 1) % 2 as DisplayFunction; // 🐇🥚
                 break;
             case "delete":
                 if (sidebar.contains(document.activeElement)) return;
@@ -112,7 +109,10 @@ function main() {
                 ctx.jumpToSelectedPoint();
                 break;
             case "i":
-                infoButton.toggleAttribute("data-toggle");
+                infoMenu.toggleState("info");
+                return;
+            case "l":
+                infoMenu.toggleState("colorLegend");
                 return;
             default:
                 return;

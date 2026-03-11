@@ -31,11 +31,6 @@ html, body {
     font-feature-settings: 'liga';
     user-select: none;
 }
-#info-button {
-    padding: 0px;
-    height: 40px;
-    width: 40px;
-}
 .info-container {
     position: fixed;
     margin: 10px;
@@ -84,7 +79,7 @@ td {
 th {
     vertical-align: bottom;
 }
-#info-text {
+.info-box {
     background-color: white;
     padding: 6px;
     border-radius: 5px;
@@ -104,17 +99,28 @@ kbd {
     border-radius: 2px;
 }
 
-#info-button {
+button {
     background-color: #EEE;
     border-radius: 5px;
     border-color: #AAA;
     border-style: solid;
     border-width: 1px;
 }
-#info-button:hover {
+
+button:hover {
     background-color: #DDD;
 }
-#info-button:active {
+button:active {
     background-color: #BBB;
 }
-#info-button:not([data-toggle])+#info-text { display: none; }
+
+.icon-button {
+    width: 40px;
+    height: 40px;
+    padding: 0px;
+    margin-right: 2px;
+}
+
+.buttons-panel {
+    display: flex;
+}

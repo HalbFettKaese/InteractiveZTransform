@@ -1,5 +1,5 @@
 import { vec2 } from "gl-matrix";
-import { Context } from "./context";
+import { Context, DisplayFunction } from "./context";
 import { RelationName } from "./point";
 
 type SelectionWindowElement = 
@@ -182,3 +182,112 @@ export class SettingsWindow {
     }
 };
 
+export class InfoMenu {
+    infoButton: HTMLButtonElement;
+    infoText: HTMLElement;
+    legendButton: HTMLButtonElement;
+    legendBox: HTMLElement;
+    legendCanvas: HTMLCanvasElement;
+    legendCanvasCtx: CanvasRenderingContext2D;
+
+    state: "none" | "info" | "colorLegend" = "none";
+    
+    constructor() {
+        this.infoButton = document.getElementById("info-button") as HTMLButtonElement;
+        this.infoText = document.getElementById("info-text");
+        this.legendButton = document.getElementById("color-legend-button") as HTMLButtonElement;
+        this.legendBox = document.getElementById("color-legend-box");
+        this.legendCanvas = document.getElementById("color-legend-canvas") as HTMLCanvasElement;
+        this.infoButton.onclick = () => this.toggleState("info");
+        this.legendButton.onclick = () => this.toggleState("colorLegend");
+
+        this.legendCanvasCtx = this.legendCanvas.getContext("2d");
+    }
+
+    toggleState(state: Exclude<InfoMenu["state"], "none">) {
+        this.infoText.hidden = true;
+        this.legendBox.hidden = true;
+        if (this.state == state) {
+            this.state = "none";
+            return;
+        }
+        this.state = state;
+        switch (state) {
+            case "info":
+                this.infoText.hidden = false;
+                break;
+            case "colorLegend":
+                this.legendBox.hidden = false;
+                break;
+            default:
+                state satisfies never;
+        }
+    }
+    updateDisplayFunction(displayFunction: DisplayFunction) {
+        const m = 10;
+        const thickness = 50;
+        const w = this.legendCanvas.width;
+        const h = this.legendCanvas.height;
+        const ctx = this.legendCanvasCtx;
+        ctx.clearRect(0, 0, w, h);
+        const grad = ctx.createLinearGradient(0, h-m, 0, m);
+        if (displayFunction === 0) {
+            grad.addColorStop(0.0, "#0000ff");
+            grad.addColorStop(0.5, "#ffffff");
+            grad.addColorStop(1.0, "#ff0000");
+        } else if (displayFunction === 1 || displayFunction > 1) {
+            grad.addColorStop(0  , "#ff0000");
+            grad.addColorStop(1/6, "#ffff00");
+            grad.addColorStop(2/6, "#00ff00");
+            grad.addColorStop(3/6, "#00ffff");
+            grad.addColorStop(4/6, "#0000ff");
+            grad.addColorStop(5/6, "#ff00ff");
+            grad.addColorStop(1  , "#ff0000");
+        } else displayFunction satisfies never;
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, m, thickness, h-2*m);
+
+        
+        const points: [number, string][] = []; // [pos, label]
+        if (displayFunction === 0) {
+            for (let i = 0; i <= 10; i++) {
+                const y = i/10;
+                const L = Math.sqrt(y);
+                points.push([y * 0.5, L.toFixed(2)]);
+            }
+            for (let i = 1; i <= 10; i++) {
+                const y = i/10;
+                const L = 1/Math.sqrt(1-y);
+                points.push([0.5 + 0.5 * y, L.toFixed(2)]);
+            }
+        } else if (displayFunction === 1 || displayFunction > 1) {
+            points.push([0.0, "-π"])
+            points.push([1/12, "-5/6 π"])
+            points.push([1/6, "-2/3 π"])
+            points.push([0.25, "-1/2 π"])
+            points.push([1/3, "-1/3 π"])
+            points.push([5/12, "-1/6 π"])
+            points.push([0.5, "0"])
+            points.push([7/12, "+1/6 π"])
+            points.push([2/3, "+1/3 π"])
+            points.push([0.75, "+1/2 π"])
+            points.push([5/6, "+2/3 π"])
+            points.push([11/12, "+5/6 π"])
+            points.push([1.0, "+π"])
+        } else displayFunction satisfies never;
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#000000";
+        ctx.fillStyle = "black";
+        ctx.textBaseline = "middle";
+        for (var [pos, label] of points) {
+            // pos goes from 0 to 1, remap this from bottom to top pixel positions.
+            const y = Math.floor(h - m - 0.5 + (2*m - h + 1) * pos) + 0.5;
+            ctx.beginPath();
+            ctx.moveTo(thickness, y);
+            ctx.lineTo(thickness + 5, y);
+            ctx.stroke();
+            ctx.fillText(label, thickness + 8, y);
+        }
+    }
+}

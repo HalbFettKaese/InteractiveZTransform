@@ -9,7 +9,7 @@ import { vec2 } from "gl-matrix";
 import { loadShaderProgram, ProgramInfo } from "./shader_program";
 import { calculateNormalizationFactor, objectFromFunction } from "./util";
 import { createVirtualPoint, VirtualPoint, Point, RelationName, Relations } from "./point";
-import { initSelectionWindow, SettingsWindow, updateSelectionWindow } from "./html_elements";
+import { InfoMenu, initSelectionWindow, SettingsWindow, updateSelectionWindow } from "./html_elements";
 import { drawScatter } from "./scatter";
 import { drawZTransform } from "./ztransform";
 
@@ -19,6 +19,8 @@ const scatterAttributes = ["vPos"] as const;
 const scatterUniforms = ["uSampler", "uViewCorner0", "uViewCorner1", "uRadius"] as const;
 
 const bufferNames = ["points"] as const;
+
+export type DisplayFunction = 0 | 1;
 
 export class Context {
     canvas: HTMLCanvasElement;
@@ -31,15 +33,18 @@ export class Context {
         scatter: ProgramInfo<typeof scatterAttributes[number], typeof scatterUniforms[number]>
     };
     buffers: Record<typeof bufferNames[number], WebGLBuffer>;
-    displayFunction: number = 0;
+    #displayFunction: DisplayFunction;
     press: Press;
     selectionWindow: HTMLElement;
     settingsWindow: SettingsWindow = null;
     #drawingScene = false;
     #factor: number = 1;
+    infoMenu: InfoMenu;
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, infoMenu: InfoMenu) {
         this.canvas = canvas;
+        this.infoMenu = infoMenu;
+        this.displayFunction = 0;
         canvas["ctx"] = this;
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -63,6 +68,15 @@ export class Context {
             scatter: loadShaderProgram(gl, vsSourceScatter, fsSourceScatter, scatterAttributes, scatterUniforms)
         };
         this.buffers = objectFromFunction(bufferNames, () => gl.createBuffer());
+    }
+
+    get displayFunction() {
+        return this.#displayFunction;
+    }
+
+    set displayFunction(displayFunction: DisplayFunction) {
+        this.#displayFunction = displayFunction;
+        this.infoMenu.updateDisplayFunction(displayFunction);
     }
 
     get factor() {
